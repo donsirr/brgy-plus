@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { FormEvent, useState } from "react";
 
 type PanelMode = "register" | "staff" | "resident";
 
@@ -87,10 +88,50 @@ const modeButtons: Array<{ key: PanelMode; label: string }> = [
   { key: "resident", label: "Resident Login" },
 ];
 
+const demoCaptainAccount = {
+  email: "captain@brgyplus.demo",
+  password: "Captain123!",
+};
+
 export default function Home() {
+  const router = useRouter();
   const [mode, setMode] = useState<PanelMode>("register");
+  const [formValues, setFormValues] = useState<Record<string, string>>({});
+  const [authMessage, setAuthMessage] = useState<string>("");
   const activePanel = panelContent[mode];
   const isRegisterMode = mode === "register";
+
+  function handleModeChange(nextMode: PanelMode) {
+    setMode(nextMode);
+    setAuthMessage("");
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (mode === "staff") {
+      const email = formValues["staff-email"]?.trim().toLowerCase() ?? "";
+      const password = formValues["staff-password"] ?? "";
+
+      if (
+        email === demoCaptainAccount.email &&
+        password === demoCaptainAccount.password
+      ) {
+        setAuthMessage("");
+        router.push("/dashboard");
+        return;
+      }
+
+      setAuthMessage(
+        "Invalid demo staff credentials. Use the captain account shown below.",
+      );
+      return;
+    }
+
+    if (mode === "resident") {
+      setAuthMessage("Resident login is not connected yet in this demo.");
+    }
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-6 sm:px-6 lg:px-8">
@@ -130,7 +171,7 @@ export default function Home() {
                   <button
                     key={button.key}
                     type="button"
-                    onClick={() => setMode(button.key)}
+                    onClick={() => handleModeChange(button.key)}
                     className={`rounded-full px-3.5 py-2 text-sm font-semibold transition sm:px-4.5 ${
                       isActive
                         ? "bg-[#4b33ff] text-white shadow-[0_12px_25px_rgba(75,51,255,0.28)]"
@@ -176,7 +217,7 @@ export default function Home() {
                 </Link>
               </div>
             ) : (
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={handleSubmit}>
                 {activePanel.fields.map((field) => (
                   <label key={field.id} className="block">
                     <span className="mb-2 block text-sm font-semibold text-[#231a48]">
@@ -185,10 +226,33 @@ export default function Home() {
                     <input
                       type={field.type ?? "text"}
                       placeholder={field.placeholder}
+                      value={formValues[field.id] ?? ""}
+                      onChange={(event) =>
+                        setFormValues((current) => ({
+                          ...current,
+                          [field.id]: event.target.value,
+                        }))
+                      }
                       className="w-full rounded-xl border border-[#ddd6ff] bg-white px-4 py-3 text-sm text-[#1f1b2e] outline-none transition placeholder:text-[#a39aba] focus:border-[#7c66ff] focus:ring-4 focus:ring-[#7c66ff]/15"
                     />
                   </label>
                 ))}
+
+                {mode === "staff" ? (
+                  <div className="rounded-[1.2rem] border border-[#e4defd] bg-white/90 p-4 text-sm text-[#625a85] shadow-[0_12px_24px_rgba(91,71,199,0.08)]">
+                    <p className="font-semibold text-[#231a48]">
+                      Demo Barangay Captain Account
+                    </p>
+                    <p className="mt-1">Email: {demoCaptainAccount.email}</p>
+                    <p>Password: {demoCaptainAccount.password}</p>
+                  </div>
+                ) : null}
+
+                {authMessage ? (
+                  <p className="text-sm font-medium text-[#c43d6b]">
+                    {authMessage}
+                  </p>
+                ) : null}
 
                 <button
                   type="submit"
@@ -210,21 +274,21 @@ export default function Home() {
             <div className="grid gap-3 sm:grid-cols-3">
               <button
                 type="button"
-                onClick={() => setMode("register")}
+                onClick={() => handleModeChange("register")}
                 className="rounded-xl border border-[#ddd6ff] bg-white px-4 py-3 text-sm font-semibold text-[#2b2353] transition hover:border-[#aa9cff] hover:bg-[#f7f4ff]"
               >
                 New Barangay
               </button>
               <button
                 type="button"
-                onClick={() => setMode("staff")}
+                onClick={() => handleModeChange("staff")}
                 className="rounded-xl border border-[#ddd6ff] bg-white px-4 py-3 text-sm font-semibold text-[#2b2353] transition hover:border-[#aa9cff] hover:bg-[#f7f4ff]"
               >
                 Staff Portal
               </button>
               <button
                 type="button"
-                onClick={() => setMode("resident")}
+                onClick={() => handleModeChange("resident")}
                 className="rounded-xl border border-[#ddd6ff] bg-white px-4 py-3 text-sm font-semibold text-[#2b2353] transition hover:border-[#aa9cff] hover:bg-[#f7f4ff]"
               >
                 Resident Portal
@@ -236,7 +300,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() =>
-                  setMode(mode === "register" ? "staff" : "register")
+                  handleModeChange(mode === "register" ? "staff" : "register")
                 }
                 className="font-semibold text-[#4b33ff] transition hover:text-[#3119e6]"
               >
