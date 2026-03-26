@@ -41,8 +41,13 @@ export default function RegisterBarangayStepOnePage() {
             </p>
           </div>
           <div className="rounded-full bg-[#f1edff] px-4 py-2 text-sm font-semibold text-[#4b33ff]">
-            1 of 4
+            1 of 2
           </div>
+        </div>
+
+        <div className="mb-6 flex flex-wrap gap-5 border-b border-[#e8e1ff] pb-4 text-sm font-semibold">
+          <span className="text-[#231a48]">1. Select Barangay</span>
+          <span className="text-[#8e85b3]">2. Barangay Captain Details</span>
         </div>
 
         <form className="space-y-5">
@@ -69,12 +74,12 @@ export default function RegisterBarangayStepOnePage() {
             >
               Back to Landing
             </Link>
-            <button
-              type="submit"
+            <Link
+              href="/register-barangay/step-2"
               className="inline-flex items-center justify-center rounded-xl bg-[linear-gradient(135deg,#5d46ff,#3f28e6)] px-6 py-3 text-sm font-semibold text-white shadow-[0_14px_26px_rgba(82,58,227,0.28)] transition hover:translate-y-[-1px] hover:shadow-[0_18px_30px_rgba(82,58,227,0.34)]"
             >
               Next Step
-            </button>
+            </Link>
           </div>
         </form>
       </section>
